@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "nome": "Banana",
+        "cor": "Amarela",
+        "preco": 3.99,
+        "estoque": 50,
+        "codigo": "AE1241",
+        "publicacao": true,
+        "dataCriacao": "2023-05-31"
+    },
+    {
+        "id": 2,
+        "nome": "Tênis",
+        "cor": "Branco",
+        "preco": 369.9,
+        "estoque": 12,
+        "codigo": "AE1312",
+        "publicacao": true,
+        "dataCriacao": "2023-05-05"
+    },       
+    {
+        "id": 3,
+        "nome": "Teclado Keychron",
+        "cor": "Preto",
+        "preco": 1299.9,
+        "estoque": 5,
+        "codigo": "AB1234",
+        "publicacao": true,
+        "dataCriacao": "2023-05-10"
+    }
+]
