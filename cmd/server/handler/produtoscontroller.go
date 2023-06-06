@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/JainyMartins/goweb/internal/service"
 	"github.com/gin-gonic/gin"
@@ -22,12 +25,21 @@ type request struct {
 
 // var lastID int
 
-type Produto struct {
+type Produto interface {
+	GetAll() gin.HandlerFunc
+	Salvar() gin.HandlerFunc
+	Update() gin.HandlerFunc
+	Delete() gin.HandlerFunc
+	UpdateNome() gin.HandlerFunc
+	UpdatePreco() gin.HandlerFunc
+}
+
+type produto struct {
 	service service.Service
 }
 
-func NewProduct(p service.Service) *Produto {
-	return &Produto{
+func NewProduct(p service.Service) Produto {
+	return &produto{
 		service: p,
 	}
 }
@@ -35,35 +47,40 @@ func NewProduct(p service.Service) *Produto {
 /* O método de obtenção de produtos se encarregará de validar a solicitação,
 passar a tarefa ao Service e devolver a resposta correspondente ao cliente */
 
-func (c *Produto) GetAll() gin.HandlerFunc {
+func (c *produto) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != "123456" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
+
+		if token != os.Getenv("TOKEN") {
+			ctx.JSON(401, gin.H{
 				"error": "token inválido",
 			})
 			return
 		}
 
-		p, err := c.service.GetAll()
+		ps, err := c.service.GetAll()
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
-		ctx.JSON(http.StatusOK, p)
+		ctx.JSON(http.StatusOK, ps)
 	}
 }
 
 // Método Salvar
-func (c *Produto) Salvar() gin.HandlerFunc {
+func (c *produto) Salvar() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != "123456" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "token inválido"})
+
+		if token != os.Getenv("TOKEN") {
+			ctx.JSON(401, gin.H{
+				"error": "token inválido",
+			})
 			return
 		}
+
 		var req request
 		if err := ctx.Bind(&req); err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
@@ -114,9 +131,168 @@ func (c *Produto) Salvar() gin.HandlerFunc {
 			return
 		}
 
-		
-
 		ctx.JSON(http.StatusCreated, p)
+	}
+}
+
+func (c *produto) Update() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+
+		if token != os.Getenv("TOKEN") {
+			ctx.JSON(401, gin.H{
+				"error": "token inválido",
+			})
+			return
+		}
+
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			return
+		}
+		var req request
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Validação dos campos obrigatórios
+		if req.Nome == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Campo 'nome' é obrigatório"})
+			return
+		}
+
+		if req.Cor == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Campo 'cor' é obrigatório"})
+			return
+		}
+
+		if req.Preco <= 0.0 {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Campo 'preco' é obrigatório"})
+			return
+		}
+
+		if req.Estoque <= 0 {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Campo 'estoque' é obrigatório"})
+			return
+		}
+
+		if req.Codigo == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Campo 'codigo' é obrigatório"})
+			return
+		}
+
+		if !req.Publicacao {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Campo 'publicacao' é obrigatório"})
+			return
+		}
+
+		if req.DataCriacao == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Campo 'dataCriacao' é obrigatório"})
+			return
+		}
+
+		p, err := c.service.Update(int(id), req.Nome, req.Cor, req.Preco, req.Estoque, req.Codigo, req.Publicacao, req.DataCriacao)
+		if err != nil {
+			ctx.JSON(404, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(200, p)
+	}
+}
+
+func (c *produto) Delete() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+
+		if token != os.Getenv("TOKEN") {
+			ctx.JSON(401, gin.H{
+				"error": "token inválido",
+			})
+			return
+		}
+
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			return
+		}
+		err = c.service.Delete(int(id))
+		if err != nil {
+			ctx.JSON(404, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(200, gin.H{"data": fmt.Sprintf("O produto %d foi removido", id)})
+	}
+}
+
+func (c *produto) UpdateNome() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+
+		if token != os.Getenv("TOKEN") {
+			ctx.JSON(401, gin.H{
+				"error": "token inválido",
+			})
+			return
+		}
+
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			return
+		}
+		var req request
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		if req.Nome == "" {
+			ctx.JSON(400, gin.H{"error": "O nome do produto é obrigatório"})
+			return
+		}
+		p, err := c.service.UpdateNome(int(id), req.Nome)
+		if err != nil {
+			ctx.JSON(404, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(200, p)
+	}
+}
+
+func (c *produto) UpdatePreco() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.GetHeader("token")
+
+		if token != os.Getenv("TOKEN") {
+			ctx.JSON(401, gin.H{
+				"error": "token inválido",
+			})
+			return
+		}
+
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(400, gin.H{"error": "invalid ID"})
+			return
+		}
+		var req request
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		if req.Preco == 0.0 {
+			ctx.JSON(400, gin.H{"error": "O preço do produto é obrigatório"})
+			return
+		}
+		p, err := c.service.UpdatePreco(int(id), req.Preco)
+		if err != nil {
+			ctx.JSON(404, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(200, p)
 	}
 }
 

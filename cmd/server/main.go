@@ -1,10 +1,14 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/JainyMartins/goweb/internal/service"
-	"github.com/JainyMartins/goweb/internal/repository"
+	"log"
+
 	"github.com/JainyMartins/goweb/cmd/server/handler"
+	"github.com/JainyMartins/goweb/internal/repository"
+	"github.com/JainyMartins/goweb/internal/service"
+	"github.com/JainyMartins/goweb/pkg/store"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 /*
@@ -12,7 +16,17 @@ Instanciamos cada camada do domínio Products e usaremos os métodos do controla
 */
 
 func main() {
-	repo := repository.NewRepository()     // Criação da instância Repository
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("error ao carregar o arquivo .env")
+	}
+	
+	store := store.Factory("arquivo", "produtos.json")
+	if store == nil {
+		log.Fatal("Não foi possivel criar a store")
+	}
+
+	repo := repository.NewRepository(store)     // Criação da instância Repository
 	service := service.NewService(repo) // Criação da instância Service
 	p := handler.NewProduct(service)     // Criação do Controller
 
@@ -21,6 +35,10 @@ func main() {
 	{
 		pr.POST("/post", p.Salvar())
 		pr.GET("/getAll", p.GetAll())
+		pr.PUT("/:id", p.Update())
+		pr.DELETE("/:id", p.Delete())
+		pr.PATCH("/updateNome/:id", p.UpdateNome())
+		pr.PATCH("/updatePreco/:id", p.UpdatePreco())
 	}
 
 	r.Run()
