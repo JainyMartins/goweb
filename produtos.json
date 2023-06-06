@@ -68,5 +68,15 @@
     "codigo": "AE1241",
     "publicacao": true,
     "dataCriacao": "2023-05-31"
+  },
+  {
+    "id": 8,
+    "nome": "Teclado",
+    "cor": "Preto",
+    "preco": 1000.99,
+    "estoque": 50,
+    "codigo": "AE1241",
+    "publicacao": true,
+    "dataCriacao": "2023-05-31"
   }
 ]
