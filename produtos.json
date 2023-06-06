@@ -1,82 +1,10 @@
-[
-  {
-    "id": 1,
-    "nome": "Banana",
-    "cor": "Amarela",
-    "preco": 3.99,
-    "estoque": 50,
-    "codigo": "AE1241",
-    "publicacao": true,
-    "dataCriacao": "2023-05-31"
-  },
-  {
-    "id": 2,
-    "nome": "Banana",
-    "cor": "Amarela",
-    "preco": 3.99,
-    "estoque": 50,
-    "codigo": "AE1241",
-    "publicacao": true,
-    "dataCriacao": "2023-05-31"
-  },
-  {
-    "id": 3,
-    "nome": "Banana",
-    "cor": "Amarela",
-    "preco": 3.99,
-    "estoque": 50,
-    "codigo": "AE1241",
-    "publicacao": true,
-    "dataCriacao": "2023-05-31"
-  },
-  {
-    "id": 4,
-    "nome": "Banana",
-    "cor": "Amarela",
-    "preco": 3.99,
-    "estoque": 50,
-    "codigo": "AE1241",
-    "publicacao": true,
-    "dataCriacao": "2023-05-31"
-  },
-  {
-    "id": 5,
-    "nome": "Banana",
-    "cor": "Amarela",
-    "preco": 3.99,
-    "estoque": 50,
-    "codigo": "AE1241",
-    "publicacao": true,
-    "dataCriacao": "2023-05-31"
-  },
-  {
-    "id": 6,
-    "nome": "Teste",
-    "cor": "Amarela",
-    "preco": 3.99,
-    "estoque": 50,
-    "codigo": "AE1241",
-    "publicacao": true,
-    "dataCriacao": "2023-05-31"
-  },
-  {
-    "id": 7,
-    "nome": "Teste2",
-    "cor": "Amarela",
-    "preco": 3.99,
-    "estoque": 50,
-    "codigo": "AE1241",
-    "publicacao": true,
-    "dataCriacao": "2023-05-31"
-  },
-  {
-    "id": 8,
-    "nome": "Teclado",
-    "cor": "Preto",
-    "preco": 1000.99,
-    "estoque": 50,
-    "codigo": "AE1241",
-    "publicacao": true,
-    "dataCriacao": "2023-05-31"
-  }
-]
+{
+  "id": 1,
+  "nome": "Oi",
+  "cor": "TESTE",
+  "preco": 10.9,
+  "estoque": 1,
+  "codigo": "TESTE",
+  "publicacao": true,
+  "dataCriacao": "TESTE"
+}

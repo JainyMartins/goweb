@@ -1,0 +1,208 @@
+definitions:
+  handler.request:
+    properties:
+      codigo:
+        type: string
+      cor:
+        type: string
+      dataCriacao:
+        type: string
+      estoque:
+        type: integer
+      nome:
+        type: string
+      preco:
+        type: number
+      publicacao:
+        type: boolean
+    type: object
+  web.Response:
+    properties:
+      code:
+        type: string
+      data: {}
+      error:
+        type: string
+    type: object
+info:
+  contact:
+    name: API Support
+    url: https://developers.mercadolibre.com.ar/support
+  description: This API Handle MELI Products.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://developers.mercadolibre.com.ar/es_ar/terminos-y-condiciones
+  title: MELI Bootcamp API - Produtos
+  version: "1.0"
+paths:
+  /produtos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete Produtos
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: ID do produto a ser excluído
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: Delete produtos
+      tags:
+      - Produtos
+    put:
+      consumes:
+      - application/json
+      description: Atualiza os detalhes de um produto
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: ID do produto a ser atualizado
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Detalhes atualizados do produto
+        in: body
+        name: Produto
+        required: true
+        schema:
+          $ref: '#/definitions/handler.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: Update produtos
+      tags:
+      - Produtos
+  /produtos/getAll:
+    get:
+      consumes:
+      - application/json
+      description: get produtos
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: List produtos
+      tags:
+      - Produtos
+  /produtos/post:
+    post:
+      consumes:
+      - application/json
+      description: salvar Produtos
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Produto para Salvar
+        in: body
+        name: Produto
+        required: true
+        schema:
+          $ref: '#/definitions/handler.request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: Salvar produtos
+      tags:
+      - Produtos
+  /produtos/updateNome/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Atualiza o nome de um produto
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: ID do produto a ser atualizado
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Nome do produto a ser atualizado
+        in: body
+        name: nome
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: UpdateNome produtos
+      tags:
+      - Produtos
+  /produtos/updatePreco/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: UpdatePreco Produtos
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: ID do produto a ser atualizado
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Preco do produto a ser atualizado
+        in: body
+        name: preco
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.Response'
+      summary: UpdatePreco produtos
+      tags:
+      - Produtos
+swagger: "2.0"

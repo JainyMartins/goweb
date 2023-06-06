@@ -2,13 +2,17 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/JainyMartins/goweb/cmd/server/handler"
+	"github.com/JainyMartins/goweb/docs"
 	"github.com/JainyMartins/goweb/internal/repository"
 	"github.com/JainyMartins/goweb/internal/service"
 	"github.com/JainyMartins/goweb/pkg/store"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 /*
@@ -30,19 +34,21 @@ func main() {
 	if err != nil {
 		log.Fatal("error ao carregar o arquivo .env")
 	}
-	
+
 	store := store.Factory("arquivo", "produtos.json")
 	if store == nil {
 		log.Fatal("Não foi possivel criar a store")
 	}
 
-	repo := repository.NewRepository(store)     // Criação da instância Repository
-	service := service.NewService(repo) // Criação da instância Service
-	p := handler.NewProduct(service)     // Criação do Controller
+	repo := repository.NewRepository(store) // Criação da instância Repository
+	service := service.NewService(repo)     // Criação da instância Service
+	p := handler.NewProduct(service)        // Criação do Controller
 
 	r := gin.Default()
-	pr := r.Group("/produtos") 
+	pr := r.Group("/produtos")
 	{
+		pr.Use(TokenAuthMiddleware())
+
 		pr.POST("/post", p.Salvar())
 		pr.GET("/getAll", p.GetAll())
 		pr.PUT("/:id", p.Update())
@@ -51,9 +57,40 @@ func main() {
 		pr.PATCH("/updatePreco/:id", p.UpdatePreco())
 	}
 
+	docs.SwaggerInfo.Host = os.Getenv("HOST")
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	r.Run()
 }
 
+func respondWithError(c *gin.Context, code int, message interface{}) {
+	c.AbortWithStatusJSON(code, gin.H{"error": message})
+}
+
+func TokenAuthMiddleware() gin.HandlerFunc {
+	requiredToken := os.Getenv("TOKEN")
+
+	// We want to make sure the token is set, bail if not
+	if requiredToken == "" {
+		log.Fatal("Please set TOKEN environment variable")
+	}
+
+	return func(c *gin.Context) {
+		token := c.GetHeader("token")
+
+		if token == "" {
+			respondWithError(c, 401, "API token required")
+			return
+		}
+
+		if token != requiredToken {
+			respondWithError(c, 401, "Invalid API token")
+			return
+		}
+
+		c.Next()
+	}
+}
 
 //Func main com outros exercícios sem estrutura
 // func main() {
@@ -71,8 +108,3 @@ func main() {
 // 	r.Run()
 
 // }
-
-
-
-
-

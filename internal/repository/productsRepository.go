@@ -40,11 +40,11 @@ type repository struct {
 }
 
 // Criação da função que retorna um endereço de memória de uma estrutura de repository que deverá obedecer à interface Repository
-//Vamos receber uma store para poder escrever e salvar arquivos json
+// Vamos receber uma store para poder escrever e salvar arquivos json
 func NewRepository(db store.Store) Repository {
-    return &repository{
-        db: db,
-    }
+	return &repository{
+		db: db,
+	}
 }
 
 func (r *repository) GetAll() ([]Produto, error) {
@@ -77,11 +77,19 @@ func (r *repository) Salvar(id int, nome, cor string, preco float64, estoque int
 
 func (r *repository) Update(id int, nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (Produto, error) {
 	p := Produto{Nome: nome, Cor: cor, Preco: preco, Estoque: estoque, Codigo: codigo, Publicacao: publicacao, DataCriacao: dataCriacao}
+
+	//Aqui usamos a store para fazermos a leitura do array de produtos
+	r.db.Read(&ps)
+
 	updated := false
 	for i := range ps {
 		if ps[i].Id == id {
 			p.Id = id
 			ps[i] = p
+			//Aqui fazemos a escrita no arquivo e retornamos um erro se houver
+			if err := r.db.Write(ps[i]); err != nil {
+				return Produto{}, err
+			}
 			updated = true
 		}
 	}
@@ -92,6 +100,8 @@ func (r *repository) Update(id int, nome, cor string, preco float64, estoque int
 }
 
 func (r *repository) Delete(id int) error {
+	//Aqui usamos a store para fazermos a leitura do array de produtos
+	r.db.Read(&ps)
 	deleted := false
 	var index int
 	for i := range ps {
@@ -104,10 +114,18 @@ func (r *repository) Delete(id int) error {
 		return fmt.Errorf("Produto %d não encontrado", id)
 	}
 	ps = append(ps[:index], ps[index+1:]...)
+
+	//Aqui fazemos a escrita no arquivo e retornamos um erro se houver
+	if err := r.db.Write(ps); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (r *repository) UpdateNome(id int, nome string) (Produto, error) {
+	//Aqui usamos a store para fazermos a leitura do array de produtos
+	r.db.Read(&ps)
 	var p Produto
 	updated := false
 	for i := range ps {
@@ -115,15 +133,21 @@ func (r *repository) UpdateNome(id int, nome string) (Produto, error) {
 			ps[i].Nome = nome
 			updated = true
 			p = ps[i]
+			//Aqui fazemos a escrita no arquivo e retornamos um erro se houver
+			if err := r.db.Write(ps[i]); err != nil {
+				return Produto{}, err
+			}
 		}
 	}
 	if !updated {
 		return Produto{}, fmt.Errorf("Produto %d não encontrado", id)
 	}
 	return p, nil
- }
+}
 
- func (r *repository) UpdatePreco(id int, preco float64) (Produto, error) {
+func (r *repository) UpdatePreco(id int, preco float64) (Produto, error) {
+	//Aqui usamos a store para fazermos a leitura do array de produtos
+	r.db.Read(&ps)
 	var p Produto
 	updated := false
 	for i := range ps {
@@ -131,13 +155,17 @@ func (r *repository) UpdateNome(id int, nome string) (Produto, error) {
 			ps[i].Preco = preco
 			updated = true
 			p = ps[i]
+			//Aqui fazemos a escrita no arquivo e retornamos um erro se houver
+			if err := r.db.Write(ps[i]); err != nil {
+				return Produto{}, err
+			}
 		}
 	}
 	if !updated {
 		return Produto{}, fmt.Errorf("Produto %d não encontrado", id)
 	}
 	return p, nil
- }
+}
 
 func (r *repository) LastID() (int, error) {
 	//Lemos o array de produtos
@@ -155,5 +183,3 @@ func (r *repository) LastID() (int, error) {
 
 	//return lastID, nil - não usado mais com método store
 }
-
-

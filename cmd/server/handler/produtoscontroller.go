@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/JainyMartins/goweb/internal/service"
@@ -56,16 +55,9 @@ passar a tarefa ao Service e devolver a resposta correspondente ao cliente */
 // @Produce  json
 // @Param token header string true "token"
 // @Success 200 {object} web.Response
-// @Router /produtos [get]
+// @Router /produtos/getAll [get]
 func (c *produto) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.GetHeader("token")
-
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "Token inválido"))
-			return
-		}
-
 		ps, err := c.service.GetAll()
 
 		if err != nil {
@@ -74,7 +66,7 @@ func (c *produto) GetAll() gin.HandlerFunc {
 		}
 
 		if len(ps) == 0 {
-			ctx.JSON(http.StatusNoContent, web.NewResponse(http.StatusNoContent, "{}", "Não há produtos armazenados"))
+			ctx.JSON(http.StatusNoContent, web.NewResponse(http.StatusNotFound, nil, "Não há produtos armazenados"))
 			return
 		}
 
@@ -92,16 +84,9 @@ func (c *produto) GetAll() gin.HandlerFunc {
 // @Param token header string true "token"
 // @Param Produto body request true "Produto para Salvar"
 // @Success 200 {object} web.Response
-// @Router /produtos [post]
+// @Router /produtos/post [post]
 func (c *produto) Salvar() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.GetHeader("token")
-
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "Token inválido"))
-			return
-		}
-
 		var req request
 
 		if err := ctx.Bind(&req); err != nil {
@@ -159,22 +144,16 @@ func (c *produto) Salvar() gin.HandlerFunc {
 // UpdateProdutos godoc
 // @Summary Update produtos
 // @Tags Produtos
-// @Description update Produtos
+// @Description Atualiza os detalhes de um produto
 // @Accept  json
 // @Produce  json
 // @Param token header string true "token"
-// @Param Produto body request true "Produto para Update"
+// @Param id path string true "ID do produto a ser atualizado"
+// @Param Produto body request true "Detalhes atualizados do produto"
 // @Success 200 {object} web.Response
-// @Router /produtos [put]
+// @Router /produtos/{id} [put]
 func (c *produto) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.GetHeader("token")
-
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "Token inválido"))
-			return
-		}
-
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 
 		if err != nil {
@@ -241,18 +220,11 @@ func (c *produto) Update() gin.HandlerFunc {
 // @Accept  json
 // @Produce  json
 // @Param token header string true "token"
-// @Param Produto param request true "Produto.Id para Delete"
+// @Param id path string true "ID do produto a ser excluído"
 // @Success 200 {object} web.Response
-// @Router /produtos [delete]
+// @Router /produtos/{id} [delete]
 func (c *produto) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.GetHeader("token")
-
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "Token inválido"))
-			return
-		}
-
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 
 		if err != nil {
@@ -268,26 +240,18 @@ func (c *produto) Delete() gin.HandlerFunc {
 	}
 }
 
-// Método PatchNome
-// PatchNomeProdutos godoc
-// @Summary PatchNome produtos
+// @Summary UpdateNome produtos
 // @Tags Produtos
-// @Description patchNome Produtos
+// @Description Atualiza o nome de um produto
 // @Accept  json
 // @Produce  json
 // @Param token header string true "token"
-// @Param Produto body request true "Produto.Nome para UpdateNome"
+// @Param id path string true "ID do produto a ser atualizado"
+// @Param nome body string true "Nome do produto a ser atualizado"
 // @Success 200 {object} web.Response
-// @Router /produtos/updateNome [patch]
+// @Router /produtos/updateNome/{id} [patch]
 func (c *produto) UpdateNome() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.GetHeader("token")
-
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "Token inválido"))
-			return
-		}
-
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 
 		if err != nil {
@@ -326,18 +290,12 @@ func (c *produto) UpdateNome() gin.HandlerFunc {
 // @Accept  json
 // @Produce  json
 // @Param token header string true "token"
-// @Param Produto body request true "Produto.Preco para UpdatePreco"
+// @Param id path string true "ID do produto a ser atualizado"
+// @Param preco body string true "Preco do produto a ser atualizado"
 // @Success 200 {object} web.Response
-// @Router /produtos/updatePreco [patch]
+// @Router /produtos/updatePreco/{id} [patch]
 func (c *produto) UpdatePreco() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.GetHeader("token")
-
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(http.StatusUnauthorized, web.NewResponse(http.StatusUnauthorized, nil, "Token inválido"))
-			return
-		}
-
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "ID inválido"))
