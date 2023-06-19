@@ -20,12 +20,13 @@ type Produto struct {
 // Armazenamento de produtos
 var ps []Produto
 
-// Armazenamento último ID
-var lastID int
+// Armazenamento último ID - não estamos mais usando
+// var lastID int
 
 // Criação interface repository com seus métodos
 type Repository interface {
 	GetAll() ([]Produto, error)
+	Get(id int) (Produto, error)
 	Salvar(id int, nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (Produto, error)
 	LastID() (int, error)
 	Update(id int, nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (Produto, error)
@@ -49,15 +50,33 @@ func NewRepository(db store.Store) Repository {
 
 func (r *repository) GetAll() ([]Produto, error) {
 	//Aqui fazemos a leitura do array
-	r.db.Read(&ps)
+	if err := r.db.Read(&ps); err != nil {
+		return nil, err
+	}
 
 	//Aqui retornamos o array de produtos
 	return ps, nil
 }
 
+func (r *repository) Get(id int) (Produto, error) {
+	if err := r.db.Read(&ps); err != nil {
+		return Produto{}, err
+	}
+
+	for _, produto := range ps {
+		if produto.Id == id {
+			return produto, nil
+		}
+	}
+
+	return Produto{}, fmt.Errorf("Produto %d não encontrado", id)
+}
+
 func (r *repository) Salvar(id int, nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (Produto, error) {
 	//Aqui usamos a store para fazermos a leitura do array de produtos
-	r.db.Read(&ps)
+	if err := r.db.Read(&ps); err != nil {
+		return Produto{}, err
+	}
 
 	//Aqui criamos um produto com os parâmetros passados
 	p := Produto{id, nome, cor, preco, estoque, codigo, publicacao, dataCriacao}
@@ -79,7 +98,9 @@ func (r *repository) Update(id int, nome, cor string, preco float64, estoque int
 	p := Produto{Nome: nome, Cor: cor, Preco: preco, Estoque: estoque, Codigo: codigo, Publicacao: publicacao, DataCriacao: dataCriacao}
 
 	//Aqui usamos a store para fazermos a leitura do array de produtos
-	r.db.Read(&ps)
+	if err := r.db.Read(&ps); err != nil {
+		return Produto{}, err
+	}
 
 	updated := false
 	for i := range ps {
@@ -101,7 +122,10 @@ func (r *repository) Update(id int, nome, cor string, preco float64, estoque int
 
 func (r *repository) Delete(id int) error {
 	//Aqui usamos a store para fazermos a leitura do array de produtos
-	r.db.Read(&ps)
+	if err := r.db.Read(&ps); err != nil {
+		return err
+	}
+
 	deleted := false
 	var index int
 	for i := range ps {
@@ -125,7 +149,10 @@ func (r *repository) Delete(id int) error {
 
 func (r *repository) UpdateNome(id int, nome string) (Produto, error) {
 	//Aqui usamos a store para fazermos a leitura do array de produtos
-	r.db.Read(&ps)
+	if err := r.db.Read(&ps); err != nil {
+		return Produto{}, err
+	}
+
 	var p Produto
 	updated := false
 	for i := range ps {
@@ -147,7 +174,10 @@ func (r *repository) UpdateNome(id int, nome string) (Produto, error) {
 
 func (r *repository) UpdatePreco(id int, preco float64) (Produto, error) {
 	//Aqui usamos a store para fazermos a leitura do array de produtos
-	r.db.Read(&ps)
+	if err := r.db.Read(&ps); err != nil {
+		return Produto{}, err
+	}
+
 	var p Produto
 	updated := false
 	for i := range ps {

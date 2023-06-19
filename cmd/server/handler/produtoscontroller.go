@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -27,6 +28,7 @@ type request struct {
 
 type Produto interface {
 	GetAll() gin.HandlerFunc
+	Get() gin.HandlerFunc
 	Salvar() gin.HandlerFunc
 	Update() gin.HandlerFunc
 	Delete() gin.HandlerFunc
@@ -71,6 +73,40 @@ func (c *produto) GetAll() gin.HandlerFunc {
 		}
 
 		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, ps, ""))
+	}
+}
+
+// Method Get
+// GetProducts godoc
+//
+//	@Summary		Get Products
+//	@Tags			Products
+//	@Description	Get the details of a Products
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"ID of Products to be searched"
+//	@Success		200	{object}	web.response
+//	@Router			/produtos/get/{id} [get]
+func (c *produto) Get() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "ID inválido"))
+			return
+		}
+
+		p, err := c.service.Get(int(id))
+
+		if err != nil {
+			if errors.Is(err, errors.New("Product not found")) {
+				ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, "Product not found: %s", err.Error()))
+				return
+			}
+			ctx.JSON(http.StatusInternalServerError, web.NewResponse(http.StatusInternalServerError, "Error to process the request, try again: %s", err.Error()))
+			return
+		}
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, p, ""))
 	}
 }
 

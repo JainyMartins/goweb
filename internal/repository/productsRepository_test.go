@@ -1,39 +1,16 @@
 package repository_test
 
 import (
-	"errors"
 	"testing"
 
+	"github.com/JainyMartins/goweb/internal/mocks"
 	"github.com/JainyMartins/goweb/internal/repository"
 	"github.com/stretchr/testify/assert"
 )
 
-type mockStore struct {
-	data interface{}
-	callingRead bool
-}
-
-func (m *mockStore) Read(v interface{}) error {
-	m.callingRead = true
-	produtos := []repository.Produto{
-		{1, "Tomate", "Vermelho", 4.99, 4, "AF333", true, "20231010"},
-		{2, "Camarão", "Laranja", 100.99, 5, "AERQW", true, "20230511"},
-		{3, "Before Update", "Preto", 50.00, 2, "A123A", true, "20231008"},
-	}
-	data, ok := v.(*[]repository.Produto)
-	if !ok {
-		return errors.New("Erro")
-	}
-	*data = produtos
-	return nil
-}
-
-func (m *mockStore) Write(v interface{}) error {
-	return nil
-}
-
+// Testando na Camada de Repository
 func TestGetAll(t *testing.T) {
-	repo := repository.NewRepository(&mockStore{})
+	repo := repository.NewRepository(&mocks.MockStore{})
 
 	result, err := repo.GetAll()
 	assert.NoError(t, err)
@@ -57,8 +34,8 @@ func TestGetAll(t *testing.T) {
 	assert.Equal(t, "20230511", result[1].DataCriacao)
 }
 
-func TestUpdateNome(t *testing.T){
-	mockedStore := &mockStore{}
+func TestUpdateNome(t *testing.T) {
+	mockedStore := &mocks.MockStore{}
 	repo := repository.NewRepository(mockedStore)
 
 	product := repository.Produto{3, "After Update", "Preto", 50.00, 2, "A123A", true, "20231008"}
@@ -67,5 +44,5 @@ func TestUpdateNome(t *testing.T){
 
 	assert.NoError(t, err)
 	assert.Equal(t, product, result)
-	assert.True(t, mockedStore.callingRead)
+	assert.True(t, mockedStore.CallingRead)
 }

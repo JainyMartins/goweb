@@ -1,10 +1,12 @@
-{
-  "id": 1,
-  "nome": "Oi",
-  "cor": "TESTE",
-  "preco": 10.9,
-  "estoque": 1,
-  "codigo": "TESTE",
-  "publicacao": true,
-  "dataCriacao": "TESTE"
-}
+[
+  {
+    "id": 1,
+    "nome": "Oi",
+    "cor": "TESTE",
+    "preco": 10.9,
+    "estoque": 1,
+    "codigo": "TESTE",
+    "publicacao": true,
+    "dataCriacao": "TESTE"
+  }
+]

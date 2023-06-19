@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -51,6 +52,7 @@ func main() {
 
 		pr.POST("/post", p.Salvar())
 		pr.GET("/getAll", p.GetAll())
+		pr.GET("/get/:id", p.Get())
 		pr.PUT("/:id", p.Update())
 		pr.DELETE("/:id", p.Delete())
 		pr.PATCH("/updateNome/:id", p.UpdateNome())
@@ -60,7 +62,10 @@ func main() {
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.Run()
+	err = r.Run()
+	if err != nil {
+		fmt.Println("Erro ao iniciar servidor")
+	}
 }
 
 func respondWithError(c *gin.Context, code int, message interface{}) {

@@ -4,6 +4,8 @@ import "github.com/JainyMartins/goweb/internal/repository"
 
 type Service interface {
 	GetAll() ([]repository.Produto, error)
+	Get(id int) (repository.Produto, error)
+
 	Salvar(nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (repository.Produto, error)
 	Update(id int, nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (repository.Produto, error)
 	Delete(id int) error
@@ -27,6 +29,15 @@ func (s *service) GetAll() ([]repository.Produto, error) {
 		return nil, err
 	}
 	return ps, nil
+}
+
+func (s *service) Get(id int) (repository.Produto, error) {
+	p, err := s.repository.Get(id)
+	if err != nil {
+		return repository.Produto{}, err
+	}
+
+	return p, nil
 }
 
 func (s *service) Salvar(nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (repository.Produto, error) {
