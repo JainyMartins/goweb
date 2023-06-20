@@ -18,5 +18,15 @@
     "codigo": "ARQ12",
     "publicacao": true,
     "dataCriacao": "20231004"
+  },
+  {
+    "id": 4,
+    "nome": "Uva",
+    "cor": "Roxa",
+    "preco": 10.99,
+    "estoque": 10,
+    "codigo": "ARQ12",
+    "publicacao": true,
+    "dataCriacao": "20231004"
   }
 ]
