@@ -1,29 +1,32 @@
 package service
 
-import "github.com/JainyMartins/goweb/internal/repository"
+import (
+	"context"
+
+	"github.com/JainyMartins/goweb/internal/repository/repositoryutil"
+)
 
 type Service interface {
-	GetAll() ([]repository.Produto, error)
-	Get(id int) (repository.Produto, error)
-
-	Salvar(nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (repository.Produto, error)
-	Update(id int, nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (repository.Produto, error)
+	GetAll() ([]repositoryutil.Product, error)
+	Get(id int) (repositoryutil.Product, error)
+	Salvar(name, category string, count int, price float64) (repositoryutil.Product, error)
+	Update(id int, name, category string, count int, price float64) (repositoryutil.Product, error)
 	Delete(id int) error
-	UpdateNome(id int, name string) (repository.Produto, error)
-	UpdatePreco(id int, preco float64) (repository.Produto, error)
+	UpdateNome(id int, name string) (repositoryutil.Product, error)
+	UpdatePreco(id int, preco float64) (repositoryutil.Product, error)
 }
 
 type service struct {
-	repository repository.Repository
+	repository repositoryutil.Repository
 }
 
-func NewService(r repository.Repository) Service {
+func NewService(r repositoryutil.Repository) Service {
 	return &service{
 		repository: r,
 	}
 }
 
-func (s *service) GetAll() ([]repository.Produto, error) {
+func (s *service) GetAll() ([]repositoryutil.Product, error) {
 	ps, err := s.repository.GetAll()
 	if err != nil {
 		return nil, err
@@ -31,44 +34,74 @@ func (s *service) GetAll() ([]repository.Produto, error) {
 	return ps, nil
 }
 
-func (s *service) Get(id int) (repository.Produto, error) {
-	p, err := s.repository.Get(id)
+func (s *service) Get(id int) (repositoryutil.Product, error) {
+	ctx := context.TODO()
+	p, err := s.repository.GetOneWithContext(ctx, id)
 	if err != nil {
-		return repository.Produto{}, err
+		return repositoryutil.Product{}, err
 	}
 
 	return p, nil
 }
 
-func (s *service) Salvar(nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (repository.Produto, error) {
-	lastID, err := s.repository.LastID()
+func (s *service) Salvar(name, category string, count int, price float64) (repositoryutil.Product, error) {
+	var product repositoryutil.Product
+
+	product.Name = name
+	product.Category = category
+	product.Count = count
+	product.Price = price
+
+	Product, err := s.repository.Salvar(product)
 	if err != nil {
-		return repository.Produto{}, err
+		return repositoryutil.Product{}, err
 	}
 
-	lastID++
-
-	produto, err := s.repository.Salvar(lastID, nome, cor, preco, estoque, codigo, publicacao, dataCriacao)
-	if err != nil {
-		return repository.Produto{}, err
-	}
-
-	return produto, nil
+	return Product, nil
 }
 
-func (s *service) Update(id int, nome, cor string, preco float64, estoque int, codigo string, publicacao bool, dataCriacao string) (repository.Produto, error) {
+func (s *service) Update(id int, name, category string, count int, price float64) (repositoryutil.Product, error) {
+	productFind, err := s.Get(id)
+	if err != nil {
+		return repositoryutil.Product{}, err
+	}
 
-	return s.repository.Update(id, nome, cor, preco, estoque, codigo, publicacao, dataCriacao)
- }
+	if name != "" {
+		productFind.Name = name
+	}
 
- func (s *service) Delete(id int) error {
+	if category != "" {
+		productFind.Category = category
+	}
+
+	if count != 0 {
+		productFind.Count = count
+	}
+
+	if price != 0.0 {
+		productFind.Price = price
+	}
+
+	_, err = s.repository.Update(productFind)
+	if err != nil {
+		return repositoryutil.Product{}, err
+	}
+	return productFind, nil
+
+}
+
+func (s *service) Delete(id int) error {
 	return s.repository.Delete(id)
- }
+}
 
- func (s *service) UpdateNome(id int, nome string) (repository.Produto, error) {
-	return s.repository.UpdateNome(id, nome)
- }
+func (s *service) UpdateNome(id int, name string) (repositoryutil.Product, error) {
+	product, err := s.repository.UpdateName(id, name)
 
- func (s *service) UpdatePreco(id int, preco float64) (repository.Produto, error) {
-	return s.repository.UpdatePreco(id, preco)
- }
+	return product, err
+}
+
+func (s *service) UpdatePreco(id int, price float64) (repositoryutil.Product, error) {
+	product, err := s.repository.UpdatePrice(id, price)
+
+	return product, err
+}

@@ -6,12 +6,12 @@ import (
 	"os"
 
 	"github.com/JainyMartins/goweb/cmd/server/handler"
+	"github.com/JainyMartins/goweb/config"
 	"github.com/JainyMartins/goweb/docs"
 	"github.com/JainyMartins/goweb/internal/repository"
 	"github.com/JainyMartins/goweb/internal/service"
-	"github.com/JainyMartins/goweb/pkg/store"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	_ "github.com/go-sql-driver/mysql"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -31,19 +31,18 @@ Instanciamos cada camada do domínio Products e usaremos os métodos do controla
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("error ao carregar o arquivo .env")
-	}
+	config.InitConfig()
 
-	store := store.Factory("arquivo", "produtos.json")
-	if store == nil {
-		log.Fatal("Não foi possivel criar a store")
-	}
+	// store := store.Factory("arquivo", "produtos.json")
+	// if store == nil {
+	// 	log.Fatal("Não foi possivel criar a store")
+	// }
 
-	repo := repository.NewRepository(store) // Criação da instância Repository
-	service := service.NewService(repo)     // Criação da instância Service
-	p := handler.NewProduct(service)        // Criação do Controller
+	fmt.Println(config.StorageDB)
+
+	repo := repository.NewMySqlRepository(config.StorageDB) // Criação da instância Repository
+	service := service.NewService(repo)                     // Criação da instância Service
+	p := handler.NewProduct(service)                        // Criação do Controller
 
 	r := gin.Default()
 	pr := r.Group("/produtos")
@@ -62,7 +61,7 @@ func main() {
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	err = r.Run()
+	err := r.Run()
 	if err != nil {
 		fmt.Println("Erro ao iniciar servidor")
 	}

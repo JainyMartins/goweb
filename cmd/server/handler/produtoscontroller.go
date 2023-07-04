@@ -12,14 +12,21 @@ import (
 )
 
 // Declaração da Estrutura Request e seus campos rotulados
+//
+//	type request struct {
+//		Nome        string  `json:"nome"`
+//		Cor         string  `json:"cor"`
+//		Preco       float64 `json:"preco"`
+//		Estoque     int     `json:"estoque"`
+//		Codigo      string  `json:"codigo"`
+//		Publicacao  bool    `json:"publicacao"`
+//		DataCriacao string  `json:"dataCriacao"`
+//	}
 type request struct {
-	Nome        string  `json:"nome"`
-	Cor         string  `json:"cor"`
-	Preco       float64 `json:"preco"`
-	Estoque     int     `json:"estoque"`
-	Codigo      string  `json:"codigo"`
-	Publicacao  bool    `json:"publicacao"`
-	DataCriacao string  `json:"dataCriacao"`
+	Name     string  `json:"name"`
+	Category string  `json:"category"`
+	Count    int     `json:"count"`
+	Price    float64 `json:"price"`
 }
 
 // var produtos []repository.Produto
@@ -131,42 +138,27 @@ func (c *produto) Salvar() gin.HandlerFunc {
 		}
 
 		// Validação dos campos obrigatórios
-		if req.Nome == "" {
+		if req.Name == "" {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "O nome do produto é obrigatório"))
 			return
 		}
 
-		if req.Cor == "" {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'cor' é obrigatório"))
+		if req.Category == "" {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'categoria' é obrigatório"))
 			return
 		}
 
-		if req.Preco <= 0.0 {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'preco' é obrigatório"))
+		if req.Count <= 0 {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'count' é obrigatório"))
 			return
 		}
 
-		if req.Estoque <= 0 {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'estoque' é obrigatório"))
+		if req.Price <= 0.0 {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'price' é obrigatório"))
 			return
 		}
 
-		if req.Codigo == "" {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'codigo' é obrigatório"))
-			return
-		}
-
-		if !req.Publicacao {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'publicacao' é obrigatório"))
-			return
-		}
-
-		if req.DataCriacao == "" {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'dataCriacao' é obrigatório"))
-			return
-		}
-
-		p, err := c.service.Salvar(req.Nome, req.Cor, req.Preco, req.Estoque, req.Codigo, req.Publicacao, req.DataCriacao)
+		p, err := c.service.Salvar(req.Name, req.Category, req.Count, req.Price)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, err.Error()))
 			return
@@ -203,42 +195,27 @@ func (c *produto) Update() gin.HandlerFunc {
 		}
 
 		// Validação dos campos obrigatórios
-		if req.Nome == "" {
+		if req.Name == "" {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "O nome do produto é obrigatório"))
 			return
 		}
 
-		if req.Cor == "" {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'cor' é obrigatório"))
+		if req.Category == "" {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'categoria' é obrigatório"))
 			return
 		}
 
-		if req.Preco <= 0.0 {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'preco' é obrigatório"))
+		if req.Count <= 0 {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'count' é obrigatório"))
 			return
 		}
 
-		if req.Estoque <= 0 {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'estoque' é obrigatório"))
+		if req.Price <= 0.0 {
+			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'price' é obrigatório"))
 			return
 		}
 
-		if req.Codigo == "" {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'codigo' é obrigatório"))
-			return
-		}
-
-		if !req.Publicacao {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'publicacao' é obrigatório"))
-			return
-		}
-
-		if req.DataCriacao == "" {
-			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'dataCriacao' é obrigatório"))
-			return
-		}
-
-		p, err := c.service.Update(int(id), req.Nome, req.Cor, req.Preco, req.Estoque, req.Codigo, req.Publicacao, req.DataCriacao)
+		p, err := c.service.Update(int(id), req.Name, req.Category, req.Count, req.Price)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
@@ -266,7 +243,7 @@ func (c *produto) Delete() gin.HandlerFunc {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "ID inválido"))
 			return
 		}
-		
+
 		err = c.service.Delete(int(id))
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
@@ -289,31 +266,28 @@ func (c *produto) Delete() gin.HandlerFunc {
 func (c *produto) UpdateNome() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "ID inválido"))
 			return
 		}
 
 		var req request
-
 		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, err.Error()))
 			return
 		}
 
-		if req.Nome == "" {
+		// Validação do Nome
+		if req.Name == "" {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "O nome do produto é obrigatório"))
 			return
 		}
 
-		p, err := c.service.UpdateNome(int(id), req.Nome)
-
+		p, err := c.service.UpdateNome(int(id), req.Name)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
 			return
 		}
-
 		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, p, ""))
 	}
 }
@@ -344,12 +318,12 @@ func (c *produto) UpdatePreco() gin.HandlerFunc {
 			return
 		}
 
-		if req.Preco <= 0.0 {
+		if req.Price <= 0.0 {
 			ctx.JSON(http.StatusBadRequest, web.NewResponse(http.StatusBadRequest, nil, "Campo 'preco' é obrigatório"))
 			return
 		}
 
-		p, err := c.service.UpdatePreco(int(id), req.Preco)
+		p, err := c.service.UpdatePreco(int(id), req.Price)
 
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, web.NewResponse(http.StatusNotFound, nil, err.Error()))
